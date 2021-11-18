@@ -1,0 +1,79 @@
+version: '3.5'
+
+services: 
+    rabbitmq:
+        image: rabbitmq:management-alpine
+        ports: 
+            - 15672:15672
+            - 5672:5672
+        volumes:
+        #   - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+            - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+        networks:
+            - rabbitmq_nodejs
+    producer:
+        build: ./producer
+        restart: always
+        depends_on:
+            - "rabbitmq"
+        volumes:
+            - ./producer/:/usr/src/app
+        #working_dir: /app
+        #command: npm run start
+        environment:
+        #     - NODE_ENV=development
+        #     - PORT=3000
+            # - RABBIT_HOST=rabbitmq
+            # - RABBIT_PORT=5672
+            # - RABBIT_USER=guest
+            # - RABBIT_PASSWORD=guest
+            - AMQP_URL= amqp://juan:juan@rabbitmq:5672
+        ports:
+            - 4000:4000
+        networks:
+            - rabbitmq_nodejs
+    consumer0:
+        build: ./consumer0
+        restart: always
+        depends_on:
+            - "rabbitmq"
+        volumes:
+            - ./consumer0/:/usr/src/app
+        #working_dir: /app
+        #command: npm run start
+        environment:
+        #     - NODE_ENV=development
+        #     - PORT=3000
+            # - RABBIT_HOST=rabbitmq
+            # - RABBIT_PORT=5672
+            # - RABBIT_USER=guest
+            # - RABBIT_PASSWORD=guest
+            - AMQP_URL= amqp://juan:juan@rabbitmq:5672
+        ports:
+            - 3000:3000
+        networks:
+            - rabbitmq_nodejs
+    consumer1:
+        build: ./consumer1
+        restart: always
+        depends_on:
+            - "rabbitmq"
+        volumes:
+            - ./consumer1/:/usr/src/app
+        #working_dir: /app
+        #command: npm run start
+        environment:
+        #     - NODE_ENV=development
+        #     - PORT=3000
+            # - RABBIT_HOST=rabbitmq
+            # - RABBIT_PORT=5672
+            # - RABBIT_USER=guest
+            # - RABBIT_PASSWORD=guest
+            - AMQP_URL= amqp://juan:juan@rabbitmq:5672
+        ports:
+            - 5000:5000
+        networks:
+            - rabbitmq_nodejs
+networks:
+    rabbitmq_nodejs:
+        driver: bridge
